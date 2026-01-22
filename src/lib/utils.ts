@@ -1,6 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { format, differenceInDays } from "date-fns";
+import { format, differenceInCalendarDays } from "date-fns";
 import { ko } from "date-fns/locale";
 import type { Currency } from "@/types/database";
 import { CURRENCIES } from "./constants";
@@ -43,7 +43,7 @@ export function getDaysUntilPayment(billingDay: number): number {
     paymentDate = new Date(currentYear, currentMonth + 1, billingDay);
   }
 
-  return differenceInDays(paymentDate, today);
+  return differenceInCalendarDays(paymentDate, today);
 }
 
 // D-Day 포맷팅
