@@ -8,22 +8,20 @@ import {
   sendTestNotification,
   type UserSettings,
 } from "@/actions/settings";
+import { useToast } from "@/components/ui/toast";
 
 interface SettingsFormProps {
   settings: UserSettings;
 }
 
 export function SettingsForm({ settings }: SettingsFormProps) {
+  const toast = useToast();
   const [notificationEnabled, setNotificationEnabled] = useState(
     settings.notificationEnabled
   );
   const [name, setName] = useState(settings.name);
   const [saving, setSaving] = useState(false);
   const [testSending, setTestSending] = useState(false);
-  const [message, setMessage] = useState<{
-    type: "success" | "error";
-    text: string;
-  } | null>(null);
 
   const handleNotificationToggle = async () => {
     const newValue = !notificationEnabled;
@@ -32,16 +30,13 @@ export function SettingsForm({ settings }: SettingsFormProps) {
     const result = await updateNotificationSettings(newValue);
 
     if (result.success) {
-      setMessage({
-        type: "success",
-        text: newValue ? "알림이 활성화되었습니다." : "알림이 비활성화되었습니다.",
-      });
+      toast.success(
+        newValue ? "알림이 활성화되었습니다." : "알림이 비활성화되었습니다."
+      );
     } else {
       setNotificationEnabled(!newValue); // 롤백
-      setMessage({ type: "error", text: result.error || "설정 변경에 실패했습니다." });
+      toast.error(result.error || "설정 변경에 실패했습니다.");
     }
-
-    setTimeout(() => setMessage(null), 3000);
   };
 
   const handleNameSave = async () => {
@@ -52,12 +47,10 @@ export function SettingsForm({ settings }: SettingsFormProps) {
     setSaving(false);
 
     if (result.success) {
-      setMessage({ type: "success", text: "이름이 저장되었습니다." });
+      toast.success("이름이 저장되었습니다.");
     } else {
-      setMessage({ type: "error", text: result.error || "저장에 실패했습니다." });
+      toast.error(result.error || "저장에 실패했습니다.");
     }
-
-    setTimeout(() => setMessage(null), 3000);
   };
 
   const handleTestEmail = async () => {
@@ -66,32 +59,14 @@ export function SettingsForm({ settings }: SettingsFormProps) {
     setTestSending(false);
 
     if (result.success) {
-      setMessage({ type: "success", text: "테스트 이메일이 발송되었습니다." });
+      toast.success("테스트 이메일이 발송되었습니다.");
     } else {
-      setMessage({
-        type: "error",
-        text: result.error || "이메일 발송에 실패했습니다.",
-      });
+      toast.error(result.error || "이메일 발송에 실패했습니다.");
     }
-
-    setTimeout(() => setMessage(null), 5000);
   };
 
   return (
     <div className="space-y-6">
-      {/* Message Toast */}
-      {message && (
-        <div
-          className={`p-3 rounded-lg text-sm ${
-            message.type === "success"
-              ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400"
-              : "bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400"
-          }`}
-        >
-          {message.text}
-        </div>
-      )}
-
       {/* Profile Section */}
       <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800">
         <div className="p-4 border-b border-zinc-200 dark:border-zinc-800">

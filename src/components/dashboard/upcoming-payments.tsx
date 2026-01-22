@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { CreditCard, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import type { Subscription, Currency } from "@/types/database";
 import { CATEGORIES, CURRENCIES } from "@/lib/constants";
 import { formatKRW, formatDDay } from "@/lib/utils";
+import { EmptyState } from "@/components/ui/empty-state";
 
 interface UpcomingPayment {
   subscription: Subscription;
@@ -23,16 +24,10 @@ export function UpcomingPayments({ payments }: UpcomingPaymentsProps) {
             다가오는 결제
           </h2>
         </div>
-        <div className="p-8 text-center text-zinc-500">
-          <CreditCard className="w-12 h-12 mx-auto mb-3 opacity-50" />
-          <p>등록된 구독이 없습니다</p>
-          <Link
-            href="/subscriptions/new"
-            className="text-emerald-600 hover:text-emerald-700 text-sm mt-2 inline-block"
-          >
-            첫 구독 추가하기
-          </Link>
-        </div>
+        <EmptyState
+          type="no-payments"
+          action={{ label: "구독 추가하기", href: "/subscriptions/new" }}
+        />
       </div>
     );
   }

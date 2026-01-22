@@ -4,31 +4,26 @@ import { sendPaymentReminder, type PaymentReminderData } from "@/lib/email";
 import { fetchExchangeRatesAlternative, convertToKRW } from "@/lib/exchange-rate";
 import { formatKRW, formatCurrency, getDaysUntilPayment } from "@/lib/utils";
 import { CATEGORIES } from "@/lib/constants";
+import { verifyCronAuth, verifySupabaseServiceKey } from "@/lib/cron-auth";
 import type { Currency, NotificationType } from "@/types/database";
 
 // Vercel Cron Job에서 매일 오전 9시(KST)에 호출
 // vercel.json: "0 0 * * *" (UTC 00:00 = KST 09:00)
 
 export async function GET(request: Request) {
-  // Vercel Cron 인증 확인
-  const authHeader = request.headers.get("authorization");
-  const cronSecret = process.env.CRON_SECRET;
-
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  // Cron 인증 검증
+  const authResult = verifyCronAuth(request);
+  if (!authResult.authorized) {
+    return authResult.error;
   }
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  if (!supabaseUrl || !supabaseServiceKey) {
-    return NextResponse.json(
-      { error: "Supabase credentials not configured" },
-      { status: 500 }
-    );
+  // Supabase 서비스 키 검증
+  const supabaseResult = verifySupabaseServiceKey();
+  if (!supabaseResult.valid) {
+    return supabaseResult.error;
   }
 
-  const supabase = createClient(supabaseUrl, supabaseServiceKey);
+  const supabase = createClient(supabaseResult.url!, supabaseResult.serviceKey!);
 
   try {
     // 환율 조회

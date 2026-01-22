@@ -3,6 +3,7 @@
 import { History, CheckCircle, XCircle } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ko } from "date-fns/locale";
+import { EmptyState } from "@/components/ui/empty-state";
 
 interface NotificationLog {
   id: string;
@@ -28,10 +29,7 @@ export function NotificationHistory({ history }: NotificationHistoryProps) {
       </div>
 
       {history.length === 0 ? (
-        <div className="p-8 text-center text-zinc-500">
-          <History className="w-12 h-12 mx-auto mb-3 opacity-50" />
-          <p>알림 이력이 없습니다</p>
-        </div>
+        <EmptyState type="no-notifications" />
       ) : (
         <ul className="divide-y divide-zinc-200 dark:divide-zinc-800">
           {history.map((log) => (

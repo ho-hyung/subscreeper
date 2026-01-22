@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { User } from "@supabase/supabase-js";
 import { Menu, LogOut, User as UserIcon, ChevronDown } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { MobileMenu } from "./mobile-menu";
+import { ThemeToggleCompact } from "@/components/ui/theme-toggle";
 
 interface HeaderProps {
   user: User;
@@ -13,6 +15,11 @@ interface HeaderProps {
 export function Header({ user }: HeaderProps) {
   const router = useRouter();
   const [showMenu, setShowMenu] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const closeMobileMenu = useCallback(() => {
+    setIsMobileMenuOpen(false);
+  }, []);
 
   const handleLogout = async () => {
     const supabase = createClient();
@@ -28,13 +35,21 @@ export function Header({ user }: HeaderProps) {
       {/* Mobile menu button */}
       <button
         type="button"
-        className="lg:hidden -m-2.5 p-2.5 text-zinc-700 dark:text-zinc-300"
+        onClick={() => setIsMobileMenuOpen(true)}
+        className="lg:hidden -m-2.5 p-2.5 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
+        aria-label="메뉴 열기"
       >
         <Menu className="w-6 h-6" />
       </button>
 
+      {/* Mobile menu */}
+      <MobileMenu isOpen={isMobileMenuOpen} onClose={closeMobileMenu} />
+
       {/* Spacer */}
       <div className="flex-1" />
+
+      {/* Theme toggle */}
+      <ThemeToggleCompact />
 
       {/* User menu */}
       <div className="relative">

@@ -12,6 +12,7 @@ import type {
 } from "@/types/database";
 import { CATEGORIES, CURRENCIES, POPULAR_SERVICES } from "@/lib/constants";
 import { createSubscription, updateSubscription } from "@/actions/subscriptions";
+import { useToast } from "@/components/ui/toast";
 
 interface SubscriptionFormProps {
   subscription?: Subscription;
@@ -19,6 +20,7 @@ interface SubscriptionFormProps {
 
 export function SubscriptionForm({ subscription }: SubscriptionFormProps) {
   const router = useRouter();
+  const toast = useToast();
   const isEditing = !!subscription;
 
   const [serviceName, setServiceName] = useState(subscription?.service_name || "");
@@ -88,10 +90,16 @@ export function SubscriptionForm({ subscription }: SubscriptionFormProps) {
 
     if (!result.success) {
       setError(result.error || "저장에 실패했습니다.");
+      toast.error(result.error || "저장에 실패했습니다.");
       setLoading(false);
       return;
     }
 
+    toast.success(
+      isEditing
+        ? `${serviceName} 구독이 수정되었습니다.`
+        : `${serviceName} 구독이 추가되었습니다.`
+    );
     router.push("/subscriptions");
     router.refresh();
   };

@@ -1,40 +1,29 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { fetchExchangeRatesAlternative } from "@/lib/exchange-rate";
+import { verifyCronAuth, verifySupabaseServiceKey } from "@/lib/cron-auth";
 
 // Vercel Cron Job에서 호출됨
-// vercel.json에서 설정: "0 * * * *" (매시간)
+// 현재 Hobby 플랜 제한으로 vercel.json에서 제외됨
 
 export async function GET(request: Request) {
-  // Vercel Cron 인증 확인
-  const authHeader = request.headers.get("authorization");
-  const cronSecret = process.env.CRON_SECRET;
+  // Cron 인증 검증
+  const authResult = verifyCronAuth(request);
+  if (!authResult.authorized) {
+    return authResult.error;
+  }
 
-  // CRON_SECRET이 설정되어 있으면 인증 필요
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  // Supabase 서비스 키 검증
+  const supabaseResult = verifySupabaseServiceKey();
+  if (!supabaseResult.valid) {
+    return supabaseResult.error;
   }
 
   try {
     // 환율 조회
     const rates = await fetchExchangeRatesAlternative();
 
-    // Supabase 클라이언트 (서비스 롤 키 사용)
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-    if (!supabaseUrl || !supabaseServiceKey) {
-      // 서비스 키가 없으면 일반 키로 시도
-      const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-      if (!supabaseAnonKey) {
-        throw new Error("Supabase credentials not configured");
-      }
-    }
-
-    const supabase = createClient(
-      supabaseUrl!,
-      supabaseServiceKey || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
+    const supabase = createClient(supabaseResult.url!, supabaseResult.serviceKey!);
 
     // DB 업데이트
     const updates = Object.entries(rates).map(([currency, rate]) => ({

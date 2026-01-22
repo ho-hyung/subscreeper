@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getUserSettings, getNotificationHistory } from "@/actions/settings";
 import { SettingsForm } from "@/components/settings/settings-form";
 import { NotificationHistory } from "@/components/settings/notification-history";
+import { ThemeSettings } from "@/components/settings/theme-settings";
 
 export default async function SettingsPage() {
   const supabase = await createClient();
@@ -33,6 +34,8 @@ export default async function SettingsPage() {
           알림 및 계정 설정을 관리하세요
         </p>
       </div>
+
+      <ThemeSettings />
 
       <SettingsForm settings={settings} />
 

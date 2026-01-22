@@ -1,7 +1,7 @@
-import { TrendingUp } from "lucide-react";
 import type { SubscriptionCategory } from "@/types/database";
 import { CATEGORIES } from "@/lib/constants";
 import { formatKRW } from "@/lib/utils";
+import { EmptyState } from "@/components/ui/empty-state";
 
 interface CategoryBreakdownProps {
   categories: Array<{
@@ -23,10 +23,7 @@ export function CategoryBreakdown({
             카테고리별 지출
           </h2>
         </div>
-        <div className="p-8 text-center text-zinc-500">
-          <TrendingUp className="w-12 h-12 mx-auto mb-3 opacity-50" />
-          <p>지출 데이터가 없습니다</p>
-        </div>
+        <EmptyState type="no-data" />
       </div>
     );
   }

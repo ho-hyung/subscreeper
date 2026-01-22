@@ -33,6 +33,31 @@ export async function getSubscriptions(): Promise<Subscription[]> {
   return data as Subscription[];
 }
 
+export async function getAllSubscriptions(): Promise<Subscription[]> {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error("인증이 필요합니다.");
+  }
+
+  const { data, error } = await supabase
+    .from("subscriptions")
+    .select("*")
+    .eq("user_id", user.id)
+    .order("is_active", { ascending: false })
+    .order("billing_day", { ascending: true });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data as Subscription[];
+}
+
 export async function getSubscription(id: string): Promise<Subscription | null> {
   const supabase = await createClient();
 
@@ -144,6 +169,36 @@ export async function deleteSubscription(
   const { error } = await supabase
     .from("subscriptions")
     .update({ is_active: false })
+    .eq("id", id)
+    .eq("user_id", user.id);
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  revalidatePath("/dashboard");
+  revalidatePath("/subscriptions");
+
+  return { success: true };
+}
+
+export async function toggleSubscription(
+  id: string,
+  isActive: boolean
+): Promise<{ success: boolean; error?: string }> {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, error: "인증이 필요합니다." };
+  }
+
+  const { error } = await supabase
+    .from("subscriptions")
+    .update({ is_active: isActive })
     .eq("id", id)
     .eq("user_id", user.id);
 

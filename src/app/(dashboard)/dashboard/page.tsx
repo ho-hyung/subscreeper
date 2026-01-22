@@ -8,6 +8,8 @@ import { SummaryCard } from "@/components/dashboard/summary-card";
 import { ExchangeRateCard } from "@/components/dashboard/exchange-rate-card";
 import { UpcomingPayments } from "@/components/dashboard/upcoming-payments";
 import { CategoryBreakdown } from "@/components/dashboard/category-breakdown";
+import { CategoryDonutChart } from "@/components/dashboard/category-donut-chart";
+import { MonthlySpendingChart } from "@/components/dashboard/monthly-spending-chart";
 import type { Currency } from "@/types/database";
 
 export default async function DashboardPage() {
@@ -127,6 +129,18 @@ export default async function DashboardPage() {
           label="연간 예상 지출"
           value={formatKRW(totalMonthly * 12)}
           subValue="월 평균 기준"
+        />
+      </div>
+
+      {/* Charts Row */}
+      <div className="grid gap-6 md:grid-cols-2">
+        <CategoryDonutChart
+          categories={sortedCategories}
+          totalMonthly={totalMonthly}
+        />
+        <MonthlySpendingChart
+          subscriptions={subscriptions}
+          exchangeRates={rates}
         />
       </div>
 

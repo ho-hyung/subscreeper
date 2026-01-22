@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { ToastProvider } from "@/components/ui/toast";
+import { ThemeProvider } from "@/components/ui/theme-provider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -19,17 +21,34 @@ export const metadata: Metadata = {
   keywords: ["구독 관리", "지출 관리", "넷플릭스", "유튜브 프리미엄", "고정 지출"],
 };
 
+// 초기 테마 설정 스크립트 (hydration 전에 실행)
+const themeScript = `
+  (function() {
+    const stored = localStorage.getItem('subscreeper-theme');
+    const theme = stored || 'system';
+    const resolved = theme === 'system'
+      ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+      : theme;
+    document.documentElement.classList.add(resolved);
+  })();
+`;
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko">
+    <html lang="ko" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-zinc-50 dark:bg-zinc-950`}
       >
-        {children}
+        <ThemeProvider>
+          <ToastProvider>{children}</ToastProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
