@@ -86,7 +86,28 @@ CREATE INDEX idx_subscriptions_billing_day ON subscriptions(billing_day);
 CREATE INDEX idx_subscriptions_is_active ON subscriptions(is_active);
 CREATE INDEX idx_notification_logs_subscription_id ON notification_logs(subscription_id);
 
--- 10. 기본 환율 데이터 (초기값)
+-- 10. Push 구독 테이블
+CREATE TABLE push_subscriptions (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  endpoint TEXT NOT NULL,
+  p256dh TEXT NOT NULL,
+  auth TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Push 구독 테이블 RLS
+ALTER TABLE push_subscriptions ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can manage own push subscriptions"
+  ON push_subscriptions FOR ALL
+  USING (auth.uid() = user_id);
+
+-- Push 구독 인덱스
+CREATE INDEX idx_push_subscriptions_user_id ON push_subscriptions(user_id);
+
+-- 11. 기본 환율 데이터 (초기값)
 INSERT INTO exchange_rates (currency, rate) VALUES
   ('KRW', 1),
   ('USD', 1320),

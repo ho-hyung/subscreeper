@@ -4,6 +4,7 @@ import { getUserSettings, getNotificationHistory } from "@/actions/settings";
 import { SettingsForm } from "@/components/settings/settings-form";
 import { NotificationHistory } from "@/components/settings/notification-history";
 import { ThemeSettings } from "@/components/settings/theme-settings";
+import { PushSettings } from "@/components/settings/push-settings";
 
 export default async function SettingsPage() {
   const supabase = await createClient();
@@ -36,6 +37,11 @@ export default async function SettingsPage() {
       </div>
 
       <ThemeSettings />
+
+      <PushSettings
+        initialEnabled={settings.pushEnabled}
+        vapidPublicKey={process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || ""}
+      />
 
       <SettingsForm settings={settings} />
 

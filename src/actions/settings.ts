@@ -5,6 +5,7 @@ import { sendTestEmail } from "@/lib/email";
 
 export interface UserSettings {
   notificationEnabled: boolean;
+  pushEnabled: boolean;
   email: string;
   name: string;
 }
@@ -25,6 +26,7 @@ export async function getUserSettings(): Promise<UserSettings | null> {
 
   return {
     notificationEnabled: user.user_metadata?.notification_enabled !== false,
+    pushEnabled: user.user_metadata?.push_enabled === true,
     email: user.email || "",
     name: user.user_metadata?.name || "",
   };

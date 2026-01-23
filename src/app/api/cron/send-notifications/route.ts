@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { sendPaymentReminder, type PaymentReminderData } from "@/lib/email";
+import { sendPushNotification, type PushSubscription, type PushPayload } from "@/lib/push";
 import { fetchExchangeRatesAlternative, convertToKRW } from "@/lib/exchange-rate";
 import { formatKRW, formatCurrency, getDaysUntilPayment } from "@/lib/utils";
 import { CATEGORIES } from "@/lib/constants";
@@ -133,14 +134,75 @@ export async function GET(request: Request) {
         category: categoryInfo?.label || sub.category,
       };
 
-      // 이메일 발송
-      const sendResult = await sendPaymentReminder(emailData);
+      // 이메일 발송 (알림 설정이 켜져 있는 경우)
+      const notificationEnabled = userData.user.user_metadata?.notification_enabled !== false;
+      let emailSuccess = false;
+      let emailError: string | undefined;
 
-      // 로그 저장
+      if (notificationEnabled) {
+        const sendResult = await sendPaymentReminder(emailData);
+        emailSuccess = sendResult.success;
+        emailError = sendResult.error;
+      }
+
+      // 푸시 알림 발송 (푸시 설정이 켜져 있는 경우)
+      const pushEnabled = userData.user.user_metadata?.push_enabled === true;
+      let pushSuccess = false;
+      let pushSent = 0;
+
+      if (pushEnabled) {
+        // 사용자의 푸시 구독 조회
+        const { data: pushSubscriptions } = await supabase
+          .from("push_subscriptions")
+          .select("*")
+          .eq("user_id", sub.user_id);
+
+        if (pushSubscriptions && pushSubscriptions.length > 0) {
+          const pushPayload: PushPayload = {
+            title: `${sub.service_name} 결제 예정`,
+            body: daysUntil === 1
+              ? `내일 ${emailData.amount} 결제 예정입니다.`
+              : `${daysUntil}일 후 ${emailData.amount} 결제 예정입니다.`,
+            icon: "/icons/icon-192x192.png",
+            badge: "/icons/icon-72x72.png",
+            data: {
+              url: "/subscriptions",
+              subscriptionId: sub.id,
+            },
+          };
+
+          // 모든 구독에 푸시 발송
+          for (const pushSub of pushSubscriptions) {
+            const subscription: PushSubscription = {
+              endpoint: pushSub.endpoint,
+              keys: {
+                p256dh: pushSub.p256dh,
+                auth: pushSub.auth,
+              },
+            };
+
+            const pushResult = await sendPushNotification(subscription, pushPayload);
+
+            if (pushResult.success) {
+              pushSent++;
+              pushSuccess = true;
+            } else if (pushResult.error?.includes("410") || pushResult.error?.includes("404")) {
+              // 만료된 구독 삭제
+              await supabase
+                .from("push_subscriptions")
+                .delete()
+                .eq("id", pushSub.id);
+            }
+          }
+        }
+      }
+
+      // 로그 저장 (이메일 또는 푸시 중 하나라도 성공하면 SUCCESS)
+      const overallSuccess = emailSuccess || pushSuccess;
       await supabase.from("notification_logs").insert({
         subscription_id: sub.id,
         notification_type: notificationType,
-        status: sendResult.success ? "SUCCESS" : "FAILED",
+        status: overallSuccess ? "SUCCESS" : "FAILED",
         sent_at: new Date().toISOString(),
       });
 
@@ -148,11 +210,11 @@ export async function GET(request: Request) {
         subscriptionId: sub.id,
         serviceName: sub.service_name,
         type: notificationType,
-        success: sendResult.success,
-        error: sendResult.error,
+        success: overallSuccess,
+        error: !overallSuccess ? (emailError || "Push and email both failed") : undefined,
       });
 
-      if (sendResult.success) {
+      if (overallSuccess) {
         success++;
       } else {
         failed++;
