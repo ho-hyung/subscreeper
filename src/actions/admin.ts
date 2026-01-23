@@ -1,8 +1,9 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { isAdmin } from "@/lib/admin";
-import type { Subscription, NotificationLog, Currency } from "@/types/database";
+import type { Subscription, NotificationLog } from "@/types/database";
 
 export interface AdminStats {
   totalUsers: number;
@@ -18,8 +19,16 @@ export interface UserWithSubscriptions {
   email: string;
   name: string | null;
   created_at: string;
+  last_sign_in_at: string | null;
   subscriptionCount: number;
+  activeSubscriptionCount: number;
   totalMonthlyKRW: number;
+  subscriptions: {
+    service_name: string;
+    amount: number;
+    currency: string;
+    is_active: boolean;
+  }[];
 }
 
 export interface NotificationLogWithDetails extends NotificationLog {
@@ -111,6 +120,15 @@ export async function getAllUsers(): Promise<UserWithSubscriptions[]> {
     throw new Error("관리자 권한이 필요합니다.");
   }
 
+  // Admin 클라이언트로 전체 사용자 목록 조회
+  const adminClient = createAdminClient();
+  const { data: authUsers, error: authError } =
+    await adminClient.auth.admin.listUsers();
+
+  if (authError) {
+    throw new Error(authError.message);
+  }
+
   // 모든 구독 조회
   const { data: subscriptions, error } = await supabase
     .from("subscriptions")
@@ -131,30 +149,19 @@ export async function getAllUsers(): Promise<UserWithSubscriptions[]> {
     rates[r.currency] = Number(r.rate);
   });
 
-  // 사용자별로 그룹화
-  const userMap = new Map<
-    string,
-    {
-      subscriptions: Subscription[];
-      email?: string;
-      name?: string;
-      created_at?: string;
-    }
-  >();
-
+  // 사용자별 구독 그룹화
+  const subscriptionMap = new Map<string, Subscription[]>();
   for (const sub of subscriptions || []) {
-    if (!userMap.has(sub.user_id)) {
-      userMap.set(sub.user_id, { subscriptions: [] });
+    if (!subscriptionMap.has(sub.user_id)) {
+      subscriptionMap.set(sub.user_id, []);
     }
-    userMap.get(sub.user_id)!.subscriptions.push(sub as Subscription);
+    subscriptionMap.get(sub.user_id)!.push(sub as Subscription);
   }
 
-  // 사용자 정보 조회 (Supabase Auth Admin API)
-  const users: UserWithSubscriptions[] = [];
-
-  for (const [userId, data] of userMap) {
-    // auth.users 테이블 직접 조회는 제한되므로 구독 데이터에서 추출
-    const activeSubs = data.subscriptions.filter((s) => s.is_active);
+  // 사용자 정보와 구독 정보 결합
+  const users: UserWithSubscriptions[] = authUsers.users.map((authUser) => {
+    const userSubs = subscriptionMap.get(authUser.id) || [];
+    const activeSubs = userSubs.filter((s) => s.is_active);
 
     // 월별 총액 계산 (KRW 기준)
     let totalMonthlyKRW = 0;
@@ -167,17 +174,25 @@ export async function getAllUsers(): Promise<UserWithSubscriptions[]> {
       totalMonthlyKRW += monthlyAmount * rate;
     }
 
-    users.push({
-      id: userId,
-      email: `user_${userId.substring(0, 8)}@example.com`, // 실제로는 auth.admin API 사용 필요
-      name: null,
-      created_at:
-        data.subscriptions[0]?.created_at || new Date().toISOString(),
-      subscriptionCount: activeSubs.length,
+    return {
+      id: authUser.id,
+      email: authUser.email || "이메일 없음",
+      name: authUser.user_metadata?.name || authUser.user_metadata?.full_name || null,
+      created_at: authUser.created_at,
+      last_sign_in_at: authUser.last_sign_in_at || null,
+      subscriptionCount: userSubs.length,
+      activeSubscriptionCount: activeSubs.length,
       totalMonthlyKRW: Math.round(totalMonthlyKRW),
-    });
-  }
+      subscriptions: userSubs.map((s) => ({
+        service_name: s.service_name,
+        amount: Number(s.amount),
+        currency: s.currency,
+        is_active: s.is_active,
+      })),
+    };
+  });
 
+  // 구독 수 기준 정렬
   return users.sort((a, b) => b.subscriptionCount - a.subscriptionCount);
 }
 
