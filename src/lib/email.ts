@@ -1,9 +1,17 @@
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Gmail SMTP 설정
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_APP_PASSWORD,
+  },
+});
 
-// 발신자 이메일 (Resend에서 인증된 도메인 필요, 또는 onboarding@resend.dev 사용)
-const FROM_EMAIL = process.env.FROM_EMAIL || "Subscreeper <onboarding@resend.dev>";
+// 발신자 이메일
+const FROM_EMAIL = process.env.GMAIL_USER || "";
+const FROM_NAME = "Subscreeper";
 
 export interface PaymentReminderData {
   userName: string;
@@ -34,17 +42,12 @@ export async function sendPaymentReminder(
   const html = generatePaymentReminderHtml(data);
 
   try {
-    const { error } = await resend.emails.send({
-      from: FROM_EMAIL,
+    await transporter.sendMail({
+      from: `${FROM_NAME} <${FROM_EMAIL}>`,
       to: userEmail,
       subject,
       html,
     });
-
-    if (error) {
-      console.error("Email send error:", error);
-      return { success: false, error: error.message };
-    }
 
     return { success: true };
   } catch (err) {
@@ -87,7 +90,7 @@ function generatePaymentReminderHtml(data: PaymentReminderData): string {
           <tr>
             <td style="background-color: #10B981; padding: 24px; text-align: center;">
               <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: bold;">
-                💳 Subscreeper
+                Subscreeper
               </h1>
             </td>
           </tr>
@@ -190,24 +193,21 @@ export async function sendTestEmail(
   email: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const { error } = await resend.emails.send({
-      from: FROM_EMAIL,
+    await transporter.sendMail({
+      from: `${FROM_NAME} <${FROM_EMAIL}>`,
       to: email,
       subject: "[Subscreeper] 테스트 이메일",
       html: `
         <div style="font-family: sans-serif; padding: 20px;">
-          <h1>🎉 테스트 성공!</h1>
+          <h1 style="color: #10B981;">테스트 성공!</h1>
           <p>Subscreeper 이메일 알림이 정상적으로 설정되었습니다.</p>
         </div>
       `,
     });
 
-    if (error) {
-      return { success: false, error: error.message };
-    }
-
     return { success: true };
   } catch (err) {
+    console.error("Test email error:", err);
     return {
       success: false,
       error: err instanceof Error ? err.message : "Unknown error",
