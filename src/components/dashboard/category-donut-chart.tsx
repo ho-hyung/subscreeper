@@ -65,7 +65,7 @@ export function CategoryDonutChart({ categories, totalMonthly }: CategoryDonutCh
       <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800">
         <div className="p-4 border-b border-zinc-200 dark:border-zinc-800">
           <h3 className="font-semibold text-zinc-900 dark:text-zinc-100">
-            카테고리별 지출 비율
+            카테고리별 지출
           </h3>
         </div>
         <EmptyState type="no-data" />
@@ -76,12 +76,12 @@ export function CategoryDonutChart({ categories, totalMonthly }: CategoryDonutCh
   return (
     <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6">
       <h3 className="font-semibold text-zinc-900 dark:text-zinc-100 mb-4">
-        카테고리별 지출 비율
+        카테고리별 지출
       </h3>
 
-      <div className="flex flex-col sm:flex-row items-center gap-6">
+      <div className="flex flex-col lg:flex-row gap-6">
         {/* 도넛 차트 */}
-        <div className="relative w-40 h-40 flex-shrink-0">
+        <div className="relative w-36 h-36 flex-shrink-0 mx-auto lg:mx-0">
           <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
             {chartData.map((item, index) => (
               <path
@@ -101,26 +101,37 @@ export function CategoryDonutChart({ categories, totalMonthly }: CategoryDonutCh
           </div>
         </div>
 
-        {/* 범례 */}
-        <div className="flex-1 space-y-2">
+        {/* 바 그래프 */}
+        <div className="flex-1 space-y-3">
           {chartData.map((item, index) => (
-            <div key={index} className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2">
-                <div
-                  className="w-3 h-3 rounded-full flex-shrink-0"
-                  style={{ backgroundColor: item.color }}
-                />
-                <span className="text-sm text-zinc-700 dark:text-zinc-300">
-                  {item.label}
-                </span>
+            <div key={index}>
+              <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center gap-2">
+                  <div
+                    className="w-3 h-3 rounded-full flex-shrink-0"
+                    style={{ backgroundColor: item.color }}
+                  />
+                  <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                    {item.label}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-zinc-500">
+                    {item.percentage.toFixed(1)}%
+                  </span>
+                  <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                    {formatKRW(item.amount)}
+                  </span>
+                </div>
               </div>
-              <div className="text-right">
-                <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-                  {item.percentage.toFixed(1)}%
-                </span>
-                <span className="text-xs text-zinc-500 ml-2">
-                  {formatKRW(item.amount)}
-                </span>
+              <div className="h-2 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+                <div
+                  className="h-full rounded-full transition-all duration-500"
+                  style={{
+                    width: `${item.percentage}%`,
+                    backgroundColor: item.color,
+                  }}
+                />
               </div>
             </div>
           ))}

@@ -7,7 +7,6 @@ import { convertToKRW } from "@/lib/exchange-rate";
 import { SummaryCard } from "@/components/dashboard/summary-card";
 import { ExchangeRateCard } from "@/components/dashboard/exchange-rate-card";
 import { UpcomingPayments } from "@/components/dashboard/upcoming-payments";
-import { CategoryBreakdown } from "@/components/dashboard/category-breakdown";
 import { CategoryDonutChart } from "@/components/dashboard/category-donut-chart";
 import { PaymentCalendar } from "@/components/dashboard/payment-calendar";
 import type { Currency } from "@/types/database";
@@ -147,12 +146,8 @@ export default async function DashboardPage() {
       {/* Main Content */}
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Left Column - 2/3 */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-2">
           <UpcomingPayments payments={upcomingPayments} />
-          <CategoryBreakdown
-            categories={sortedCategories}
-            totalMonthly={totalMonthly}
-          />
         </div>
 
         {/* Right Column - 1/3 */}
