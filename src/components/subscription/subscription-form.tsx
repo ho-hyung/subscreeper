@@ -126,29 +126,27 @@ export function SubscriptionForm({ subscription }: SubscriptionFormProps) {
       )}
 
       {/* Quick Presets */}
-      {!isEditing && (
-        <div>
-          <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-            빠른 선택
-          </label>
-          <div className="flex flex-wrap gap-2">
-            {POPULAR_SERVICES.slice(0, 8).map((preset) => (
-              <button
-                key={preset.name}
-                type="button"
-                onClick={() => handlePresetSelect(preset)}
-                className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
-                  serviceName === preset.name
-                    ? "bg-emerald-50 border-emerald-300 text-emerald-700 dark:bg-emerald-900/20 dark:border-emerald-700 dark:text-emerald-400"
-                    : "border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600"
-                }`}
-              >
-                {preset.name}
-              </button>
-            ))}
-          </div>
+      <div>
+        <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+          빠른 선택
+        </label>
+        <div className="flex flex-wrap gap-2">
+          {POPULAR_SERVICES.map((preset) => (
+            <button
+              key={preset.name}
+              type="button"
+              onClick={() => handlePresetSelect(preset)}
+              className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
+                serviceName === preset.name
+                  ? "bg-emerald-50 border-emerald-300 text-emerald-700 dark:bg-emerald-900/20 dark:border-emerald-700 dark:text-emerald-400"
+                  : "border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600"
+              }`}
+            >
+              {preset.name}
+            </button>
+          ))}
         </div>
-      )}
+      </div>
 
       {/* Service Name */}
       <div>
