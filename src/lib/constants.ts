@@ -39,6 +39,8 @@ export const SERVICE_ICONS: Record<string, string> = {
   "Coupang Play": "/icons/services/coupang.svg",
   "Xbox Game Pass": "/icons/services/xbox.svg",
   "TVING": "/icons/services/tving.svg",
+  "Wavve": "/icons/services/wavve.svg",
+  "네이버플러스 멤버십": "/icons/services/naver.svg",
 };
 
 // 인기 구독 서비스 프리셋
@@ -53,7 +55,9 @@ export const POPULAR_SERVICES = [
   { name: "ChatGPT Plus", category: "PRODUCTIVITY" as const, currency: "USD" as const },
   { name: "Disney+", category: "OTT" as const, currency: "KRW" as const },
   { name: "TVING", category: "OTT" as const, currency: "KRW" as const },
+  { name: "Wavve", category: "OTT" as const, currency: "KRW" as const },
   { name: "Watcha", category: "OTT" as const, currency: "KRW" as const },
   { name: "Coupang Play", category: "OTT" as const, currency: "KRW" as const },
+  { name: "네이버플러스 멤버십", category: "SHOPPING" as const, currency: "KRW" as const },
   { name: "Xbox Game Pass", category: "GAMING" as const, currency: "KRW" as const },
 ];
