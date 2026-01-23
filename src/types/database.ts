@@ -31,6 +31,7 @@ export interface Subscription {
   currency: Currency;
   billing_cycle: BillingCycle;
   billing_day: number;
+  billing_month: number | null; // 연간 구독용 (1-12)
   category: SubscriptionCategory;
   memo: string | null;
   is_active: boolean;
@@ -45,6 +46,7 @@ export interface CreateSubscriptionInput {
   currency: Currency;
   billing_cycle: BillingCycle;
   billing_day: number;
+  billing_month?: number; // 연간 구독용
   category: SubscriptionCategory;
   memo?: string;
 }
@@ -56,6 +58,7 @@ export interface UpdateSubscriptionInput {
   currency?: Currency;
   billing_cycle?: BillingCycle;
   billing_day?: number;
+  billing_month?: number | null; // 연간 구독용
   category?: SubscriptionCategory;
   memo?: string | null;
   is_active?: boolean;

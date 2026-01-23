@@ -34,6 +34,9 @@ export function SubscriptionForm({ subscription }: SubscriptionFormProps) {
   const [billingDay, setBillingDay] = useState(
     subscription?.billing_day?.toString() || "1"
   );
+  const [billingMonth, setBillingMonth] = useState(
+    subscription?.billing_month?.toString() || "1"
+  );
   const [category, setCategory] = useState<SubscriptionCategory>(
     (subscription?.category as SubscriptionCategory) || "OTHER"
   );
@@ -68,6 +71,15 @@ export function SubscriptionForm({ subscription }: SubscriptionFormProps) {
       return;
     }
 
+    let billingMonthNum: number | undefined;
+    if (billingCycle === "YEARLY") {
+      billingMonthNum = parseInt(billingMonth);
+      if (isNaN(billingMonthNum) || billingMonthNum < 1 || billingMonthNum > 12) {
+        setError("결제월은 1~12 사이의 숫자여야 합니다.");
+        return;
+      }
+    }
+
     setLoading(true);
 
     const input: CreateSubscriptionInput = {
@@ -76,6 +88,7 @@ export function SubscriptionForm({ subscription }: SubscriptionFormProps) {
       currency,
       billing_cycle: billingCycle,
       billing_day: billingDayNum,
+      billing_month: billingMonthNum,
       category,
       memo: memo.trim() || undefined,
     };
@@ -200,7 +213,7 @@ export function SubscriptionForm({ subscription }: SubscriptionFormProps) {
       </div>
 
       {/* Billing Cycle & Day */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className={`grid gap-4 ${billingCycle === "YEARLY" ? "grid-cols-3" : "grid-cols-2"}`}>
         <div>
           <label
             htmlFor="billingCycle"
@@ -218,6 +231,28 @@ export function SubscriptionForm({ subscription }: SubscriptionFormProps) {
             <option value="YEARLY">연간</option>
           </select>
         </div>
+        {billingCycle === "YEARLY" && (
+          <div>
+            <label
+              htmlFor="billingMonth"
+              className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1"
+            >
+              결제월 *
+            </label>
+            <select
+              id="billingMonth"
+              value={billingMonth}
+              onChange={(e) => setBillingMonth(e.target.value)}
+              className="w-full px-4 py-2.5 border border-zinc-300 dark:border-zinc-700 rounded-lg bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+            >
+              {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
+                <option key={month} value={month}>
+                  {month}월
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
         <div>
           <label
             htmlFor="billingDay"

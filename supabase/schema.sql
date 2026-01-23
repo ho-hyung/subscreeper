@@ -10,6 +10,7 @@ CREATE TABLE subscriptions (
   currency VARCHAR(3) NOT NULL DEFAULT 'KRW',
   billing_cycle VARCHAR(10) NOT NULL DEFAULT 'MONTHLY',
   billing_day INTEGER NOT NULL CHECK (billing_day >= 1 AND billing_day <= 31),
+  billing_month INTEGER CHECK (billing_month >= 1 AND billing_month <= 12), -- 연간 구독용 (월)
   category VARCHAR(20) NOT NULL DEFAULT 'OTHER',
   memo TEXT,
   is_active BOOLEAN DEFAULT true,
