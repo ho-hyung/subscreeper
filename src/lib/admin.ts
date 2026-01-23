@@ -11,19 +11,24 @@ export interface Admin {
  * 현재 사용자가 관리자인지 확인
  */
 export async function isAdmin(userId: string): Promise<boolean> {
-  const supabase = await createClient();
+  try {
+    const supabase = await createClient();
 
-  const { data, error } = await supabase
-    .from("admins")
-    .select("id")
-    .eq("id", userId)
-    .single();
+    const { data, error } = await supabase
+      .from("admins")
+      .select("id")
+      .eq("id", userId)
+      .single();
 
-  if (error || !data) {
+    if (error || !data) {
+      return false;
+    }
+
+    return true;
+  } catch {
+    // 테이블이 없거나 기타 에러 발생 시 false 반환
     return false;
   }
-
-  return true;
 }
 
 /**
