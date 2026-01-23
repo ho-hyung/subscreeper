@@ -27,20 +27,38 @@ export function formatKRW(amount: number): string {
 }
 
 // 결제일까지 남은 일수 계산
-export function getDaysUntilPayment(billingDay: number): number {
+export function getDaysUntilPayment(
+  billingDay: number,
+  billingCycle: "MONTHLY" | "YEARLY" = "MONTHLY",
+  billingMonth?: number | null
+): number {
   const today = new Date();
   const currentDay = today.getDate();
-  const currentMonth = today.getMonth();
+  const currentMonth = today.getMonth(); // 0-indexed
   const currentYear = today.getFullYear();
 
   let paymentDate: Date;
 
-  if (billingDay >= currentDay) {
-    // 이번 달 결제일
-    paymentDate = new Date(currentYear, currentMonth, billingDay);
+  if (billingCycle === "YEARLY" && billingMonth) {
+    // 연간 구독: 특정 월/일에 결제
+    const targetMonth = billingMonth - 1; // 0-indexed로 변환
+
+    // 올해 결제일
+    paymentDate = new Date(currentYear, targetMonth, billingDay);
+
+    // 올해 결제일이 이미 지났으면 내년으로
+    if (paymentDate < today) {
+      paymentDate = new Date(currentYear + 1, targetMonth, billingDay);
+    }
   } else {
-    // 다음 달 결제일
-    paymentDate = new Date(currentYear, currentMonth + 1, billingDay);
+    // 월간 구독: 매월 특정 일에 결제
+    if (billingDay >= currentDay) {
+      // 이번 달 결제일
+      paymentDate = new Date(currentYear, currentMonth, billingDay);
+    } else {
+      // 다음 달 결제일
+      paymentDate = new Date(currentYear, currentMonth + 1, billingDay);
+    }
   }
 
   return differenceInCalendarDays(paymentDate, today);

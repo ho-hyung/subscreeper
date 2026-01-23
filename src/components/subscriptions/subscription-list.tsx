@@ -89,7 +89,7 @@ export function SubscriptionList({ subscriptions, exchangeRates }: SubscriptionL
           comparison = a.billing_day - b.billing_day;
           break;
         case "dDay":
-          comparison = getDaysUntilPayment(a.billing_day) - getDaysUntilPayment(b.billing_day);
+          comparison = getDaysUntilPayment(a.billing_day, a.billing_cycle, a.billing_month) - getDaysUntilPayment(b.billing_day, b.billing_cycle, b.billing_month);
           break;
       }
 

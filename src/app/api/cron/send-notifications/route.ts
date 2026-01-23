@@ -53,7 +53,7 @@ export async function GET(request: Request) {
 
     // 각 구독 처리
     for (const sub of subscriptions) {
-      const daysUntil = getDaysUntilPayment(sub.billing_day);
+      const daysUntil = getDaysUntilPayment(sub.billing_day, sub.billing_cycle, sub.billing_month);
 
       // D-3 또는 D-1인 경우에만 처리
       if (daysUntil !== 3 && daysUntil !== 1) continue;

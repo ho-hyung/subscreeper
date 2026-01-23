@@ -28,7 +28,7 @@ export function SubscriptionCard({
   const [toggling, setToggling] = useState(false);
 
   const category = CATEGORIES[subscription.category as keyof typeof CATEGORIES];
-  const daysUntil = getDaysUntilPayment(subscription.billing_day);
+  const daysUntil = getDaysUntilPayment(subscription.billing_day, subscription.billing_cycle, subscription.billing_month);
 
   const amountKRW =
     subscription.currency === "KRW"

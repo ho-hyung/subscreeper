@@ -38,7 +38,7 @@ export default async function DashboardPage() {
   const upcomingPayments = subscriptions
     .map((sub) => ({
       subscription: sub,
-      daysUntil: getDaysUntilPayment(sub.billing_day),
+      daysUntil: getDaysUntilPayment(sub.billing_day, sub.billing_cycle, sub.billing_month),
       amountKRW: convertToKRW(sub.amount, sub.currency as Currency, rates),
     }))
     .sort((a, b) => a.daysUntil - b.daysUntil)

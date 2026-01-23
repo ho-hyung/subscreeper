@@ -39,7 +39,7 @@ export async function getUpcomingPaymentSubscriptions(): Promise<{
   const d1: Subscription[] = [];
 
   for (const sub of subscriptions) {
-    const daysUntil = getDaysUntilPayment(sub.billing_day);
+    const daysUntil = getDaysUntilPayment(sub.billing_day, sub.billing_cycle, sub.billing_month);
 
     if (daysUntil === 3) {
       d3.push(sub as Subscription);
@@ -141,7 +141,7 @@ export async function sendSubscriptionNotification(
     // 금액 계산
     const currency = subscription.currency as Currency;
     const amountKRW = convertToKRW(subscription.amount, currency, rates);
-    const daysUntil = getDaysUntilPayment(subscription.billing_day);
+    const daysUntil = getDaysUntilPayment(subscription.billing_day, subscription.billing_cycle, subscription.billing_month);
 
     const categoryInfo = CATEGORIES[subscription.category as keyof typeof CATEGORIES];
 
@@ -211,7 +211,7 @@ export async function processAllNotifications(): Promise<{
 
   // 각 구독에 대해 D-3, D-1 확인 및 알림 발송
   for (const sub of subscriptions) {
-    const daysUntil = getDaysUntilPayment(sub.billing_day);
+    const daysUntil = getDaysUntilPayment(sub.billing_day, sub.billing_cycle, sub.billing_month);
 
     // 사용자 정보 별도 조회
     const { data: userData } = await supabase.auth.admin.getUserById(sub.user_id);
