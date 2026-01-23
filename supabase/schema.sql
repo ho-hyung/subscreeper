@@ -125,14 +125,10 @@ CREATE TABLE admins (
 -- 관리자 테이블 RLS
 ALTER TABLE admins ENABLE ROW LEVEL SECURITY;
 
--- 관리자 테이블 정책: 관리자만 조회 가능
-CREATE POLICY "Admins can view admins"
+-- 관리자 테이블 정책: 본인 레코드만 조회 가능
+CREATE POLICY "Users can view own admin status"
   ON admins FOR SELECT
-  USING (
-    EXISTS (
-      SELECT 1 FROM admins a WHERE a.id = auth.uid()
-    )
-  );
+  USING (auth.uid() = id);
 
 -- 13. 관리자용 RLS 정책 추가 (subscriptions)
 CREATE POLICY "Admins can view all subscriptions"
