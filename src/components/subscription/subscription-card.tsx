@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import type { Subscription, Currency } from "@/types/database";
 import { CATEGORIES } from "@/lib/constants";
 import { formatKRW, formatCurrency, getDaysUntilPayment, formatDDay, formatBillingDay } from "@/lib/utils";
+import { ServiceIcon } from "@/components/ui/service-icon";
 import { deleteSubscription, toggleSubscription } from "@/actions/subscriptions";
 import { useToast } from "@/components/ui/toast";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
@@ -135,12 +136,11 @@ export function SubscriptionCard({
         {/* Content */}
         <Link href={`/subscriptions/${subscription.id}`} className="block">
           <div className="flex items-start gap-3 mb-4">
-            <div
-              className="w-12 h-12 rounded-xl flex items-center justify-center text-white font-medium"
-              style={{ backgroundColor: category?.color || "#888" }}
-            >
-              {subscription.service_name.slice(0, 2)}
-            </div>
+            <ServiceIcon
+              serviceName={subscription.service_name}
+              categoryColor={category?.color || "#888"}
+              size={48}
+            />
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
                 <h3 className="font-semibold text-zinc-900 dark:text-zinc-100 truncate">

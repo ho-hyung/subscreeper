@@ -24,6 +24,23 @@ export const CURRENCIES: Record<Currency, { label: string; symbol: string }> = {
   EUR: { label: "유로", symbol: "€" },
 };
 
+// 서비스 아이콘 맵
+export const SERVICE_ICONS: Record<string, string> = {
+  "Netflix": "/icons/services/netflix.svg",
+  "YouTube Premium": "/icons/services/youtube.svg",
+  "Spotify": "/icons/services/spotify.svg",
+  "Apple Music": "/icons/services/apple-music.svg",
+  "iCloud+": "/icons/services/icloud.svg",
+  "Google One": "/icons/services/google.svg",
+  "Notion": "/icons/services/notion.svg",
+  "ChatGPT Plus": "/icons/services/openai.svg",
+  "Disney+": "/icons/services/disney-plus.svg",
+  "Watcha": "/icons/services/watcha.svg",
+  "Coupang Play": "/icons/services/coupang.svg",
+  "Xbox Game Pass": "/icons/services/xbox.svg",
+  "TVING": "/icons/services/tving.svg",
+};
+
 // 인기 구독 서비스 프리셋
 export const POPULAR_SERVICES = [
   { name: "Netflix", category: "OTT" as const, currency: "KRW" as const },
