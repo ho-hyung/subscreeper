@@ -114,3 +114,52 @@ INSERT INTO exchange_rates (currency, rate) VALUES
   ('JPY', 9.5),
   ('EUR', 1450)
 ON CONFLICT (currency) DO NOTHING;
+
+-- 12. 관리자 테이블
+CREATE TABLE admins (
+  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  role VARCHAR(20) NOT NULL DEFAULT 'admin',
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 관리자 테이블 RLS
+ALTER TABLE admins ENABLE ROW LEVEL SECURITY;
+
+-- 관리자 테이블 정책: 관리자만 조회 가능
+CREATE POLICY "Admins can view admins"
+  ON admins FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM admins a WHERE a.id = auth.uid()
+    )
+  );
+
+-- 13. 관리자용 RLS 정책 추가 (subscriptions)
+CREATE POLICY "Admins can view all subscriptions"
+  ON subscriptions FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM admins WHERE admins.id = auth.uid()
+    )
+  );
+
+-- 14. 관리자용 RLS 정책 추가 (notification_logs)
+CREATE POLICY "Admins can view all notification logs"
+  ON notification_logs FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM admins WHERE admins.id = auth.uid()
+    )
+  );
+
+-- 15. 관리자용 RLS 정책 추가 (push_subscriptions)
+CREATE POLICY "Admins can view all push subscriptions"
+  ON push_subscriptions FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM admins WHERE admins.id = auth.uid()
+    )
+  );
+
+-- 관리자 인덱스
+CREATE INDEX idx_admins_role ON admins(role);

@@ -8,6 +8,7 @@ import {
   CreditCard,
   Settings,
   Plus,
+  Shield,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -17,7 +18,11 @@ const navigation = [
   { name: "설정", href: "/settings", icon: Settings },
 ];
 
-export function Sidebar() {
+interface SidebarProps {
+  isAdmin?: boolean;
+}
+
+export function Sidebar({ isAdmin = false }: SidebarProps) {
   const pathname = usePathname();
 
   return (
@@ -54,6 +59,24 @@ export function Sidebar() {
               );
             })}
           </ul>
+
+          {/* Admin Link */}
+          {isAdmin && (
+            <div className="pt-4 border-t border-zinc-200 dark:border-zinc-800">
+              <Link
+                href="/admin"
+                className={cn(
+                  "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                  pathname.startsWith("/admin")
+                    ? "bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400"
+                    : "text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
+                )}
+              >
+                <Shield className="w-5 h-5" />
+                관리자
+              </Link>
+            </div>
+          )}
 
           {/* Quick Add Button */}
           <div className="mt-auto pt-4 border-t border-zinc-200 dark:border-zinc-800">

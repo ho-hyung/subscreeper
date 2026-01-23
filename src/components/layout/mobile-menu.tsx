@@ -10,6 +10,7 @@ import {
   Settings,
   Plus,
   X,
+  Shield,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -22,9 +23,10 @@ const navigation = [
 interface MobileMenuProps {
   isOpen: boolean;
   onClose: () => void;
+  isAdmin?: boolean;
 }
 
-export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
+export function MobileMenu({ isOpen, onClose, isAdmin = false }: MobileMenuProps) {
   const pathname = usePathname();
 
   // 페이지 이동 시 메뉴 닫기
@@ -109,6 +111,24 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
               );
             })}
           </ul>
+
+          {/* Admin Link */}
+          {isAdmin && (
+            <div className="pt-4 border-t border-zinc-200 dark:border-zinc-800">
+              <Link
+                href="/admin"
+                className={cn(
+                  "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                  pathname.startsWith("/admin")
+                    ? "bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400"
+                    : "text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
+                )}
+              >
+                <Shield className="w-5 h-5" />
+                관리자
+              </Link>
+            </div>
+          )}
 
           {/* 구독 추가 버튼 */}
           <div className="mt-auto pt-4 border-t border-zinc-200 dark:border-zinc-800">

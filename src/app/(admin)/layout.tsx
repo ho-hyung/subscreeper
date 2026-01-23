@@ -1,10 +1,10 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { isAdmin } from "@/lib/admin";
-import { Sidebar } from "@/components/layout/sidebar";
+import { AdminSidebar } from "@/components/admin/admin-sidebar";
 import { Header } from "@/components/layout/header";
 
-export default async function DashboardLayout({
+export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -18,13 +18,17 @@ export default async function DashboardLayout({
     redirect("/login");
   }
 
-  const userIsAdmin = await isAdmin(user.id);
+  const admin = await isAdmin(user.id);
+
+  if (!admin) {
+    redirect("/dashboard");
+  }
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
-      <Sidebar isAdmin={userIsAdmin} />
+      <AdminSidebar />
       <div className="lg:pl-64">
-        <Header user={user} isAdmin={userIsAdmin} />
+        <Header user={user} />
         <main className="p-6">{children}</main>
       </div>
     </div>

@@ -10,9 +10,10 @@ import { ThemeToggleCompact } from "@/components/ui/theme-toggle";
 
 interface HeaderProps {
   user: User;
+  isAdmin?: boolean;
 }
 
-export function Header({ user }: HeaderProps) {
+export function Header({ user, isAdmin = false }: HeaderProps) {
   const router = useRouter();
   const [showMenu, setShowMenu] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -43,7 +44,7 @@ export function Header({ user }: HeaderProps) {
       </button>
 
       {/* Mobile menu */}
-      <MobileMenu isOpen={isMobileMenuOpen} onClose={closeMobileMenu} />
+      <MobileMenu isOpen={isMobileMenuOpen} onClose={closeMobileMenu} isAdmin={isAdmin} />
 
       {/* Spacer */}
       <div className="flex-1" />
