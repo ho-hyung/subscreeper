@@ -4,6 +4,7 @@ import type { Subscription, Currency } from "@/types/database";
 import { CATEGORIES, CURRENCIES } from "@/lib/constants";
 import { formatKRW, formatDDay } from "@/lib/utils";
 import { EmptyState } from "@/components/ui/empty-state";
+import { ServiceIcon } from "@/components/ui/service-icon";
 
 interface UpcomingPayment {
   subscription: Subscription;
@@ -60,12 +61,11 @@ export function UpcomingPayments({ payments }: UpcomingPaymentsProps) {
                 className="flex items-center justify-between hover:bg-zinc-50 dark:hover:bg-zinc-800/50 -m-2 p-2 rounded-lg transition-colors"
               >
                 <div className="flex items-center gap-3">
-                  <div
-                    className="w-10 h-10 rounded-lg flex items-center justify-center text-white text-sm font-medium"
-                    style={{ backgroundColor: category?.color || "#888" }}
-                  >
-                    {subscription.service_name.slice(0, 2)}
-                  </div>
+                  <ServiceIcon
+                    serviceName={subscription.service_name}
+                    categoryColor={category?.color || "#888"}
+                    size={40}
+                  />
                   <div>
                     <p className="font-medium text-zinc-900 dark:text-zinc-100">
                       {subscription.service_name}
