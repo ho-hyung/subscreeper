@@ -174,7 +174,7 @@ export function SubscriptionCard({
             <div className="flex items-center justify-between">
               <span className="text-sm text-zinc-500">결제일</span>
               <span className="text-sm text-zinc-700 dark:text-zinc-300">
-                {formatBillingDay(subscription.billing_day)}
+                {formatBillingDay(subscription.billing_day, subscription.billing_cycle)}
               </span>
             </div>
 

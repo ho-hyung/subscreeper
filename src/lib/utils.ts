@@ -60,7 +60,10 @@ export function formatDate(date: Date | string): string {
 }
 
 // 결제일 텍스트
-export function formatBillingDay(day: number): string {
+export function formatBillingDay(day: number, billingCycle: "MONTHLY" | "YEARLY" = "MONTHLY"): string {
+  if (billingCycle === "YEARLY") {
+    return `매년 ${day}일`;
+  }
   return `매월 ${day}일`;
 }
 
