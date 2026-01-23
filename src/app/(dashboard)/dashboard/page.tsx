@@ -9,7 +9,7 @@ import { ExchangeRateCard } from "@/components/dashboard/exchange-rate-card";
 import { UpcomingPayments } from "@/components/dashboard/upcoming-payments";
 import { CategoryBreakdown } from "@/components/dashboard/category-breakdown";
 import { CategoryDonutChart } from "@/components/dashboard/category-donut-chart";
-import { MonthlySpendingChart } from "@/components/dashboard/monthly-spending-chart";
+import { PaymentCalendar } from "@/components/dashboard/payment-calendar";
 import type { Currency } from "@/types/database";
 
 export default async function DashboardPage() {
@@ -138,7 +138,7 @@ export default async function DashboardPage() {
           categories={sortedCategories}
           totalMonthly={totalMonthly}
         />
-        <MonthlySpendingChart
+        <PaymentCalendar
           subscriptions={subscriptions}
           exchangeRates={rates}
         />
