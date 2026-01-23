@@ -19,6 +19,19 @@ export const metadata: Metadata = {
   description:
     "매달 나가는 고정 지출을 시각화하고, 결제 전 미리 알려드립니다.",
   keywords: ["구독 관리", "지출 관리", "넷플릭스", "유튜브 프리미엄", "고정 지출"],
+  manifest: "/manifest.json",
+  icons: {
+    icon: [
+      { url: "/icons/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/icons/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+    ],
+    apple: "/icons/apple-touch-icon.png",
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Subscreeper",
+  },
 };
 
 // 초기 테마 설정 스크립트 (hydration 전에 실행)
