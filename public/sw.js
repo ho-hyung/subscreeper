@@ -16,8 +16,8 @@ self.addEventListener("push", (event) => {
   let data = {
     title: "Subscreeper",
     body: "결제 알림이 있습니다.",
-    icon: "/icon-192.png",
-    badge: "/badge-72.png",
+    icon: "/icons/icon-192x192.png",
+    badge: "/icons/icon-72x72.png",
     url: "/dashboard",
   };
 
@@ -31,8 +31,8 @@ self.addEventListener("push", (event) => {
 
   const options = {
     body: data.body,
-    icon: data.icon || "/icon-192.png",
-    badge: data.badge || "/badge-72.png",
+    icon: data.icon || "/icons/icon-192x192.png",
+    badge: data.badge || "/icons/icon-72x72.png",
     vibrate: [100, 50, 100],
     data: {
       url: data.url || "/dashboard",
