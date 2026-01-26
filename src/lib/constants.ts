@@ -45,23 +45,31 @@ export const SERVICE_ICONS: Record<string, string> = {
   "쿠팡 와우 멤버십": "/icons/services/coupang-wow.svg",
 };
 
-// 인기 구독 서비스 프리셋
+// 인기 구독 서비스 프리셋 (금액 포함)
 export const POPULAR_SERVICES = [
-  { name: "Netflix", category: "OTT" as const, currency: "KRW" as const },
-  { name: "YouTube Premium", category: "OTT" as const, currency: "KRW" as const },
-  { name: "Spotify", category: "MUSIC" as const, currency: "USD" as const },
-  { name: "Apple Music", category: "MUSIC" as const, currency: "KRW" as const },
-  { name: "iCloud+", category: "CLOUD" as const, currency: "KRW" as const },
-  { name: "Google One", category: "CLOUD" as const, currency: "KRW" as const },
-  { name: "Notion", category: "PRODUCTIVITY" as const, currency: "USD" as const },
-  { name: "ChatGPT Plus", category: "PRODUCTIVITY" as const, currency: "USD" as const },
-  { name: "Disney+", category: "OTT" as const, currency: "KRW" as const },
-  { name: "TVING", category: "OTT" as const, currency: "KRW" as const },
-  { name: "Wavve", category: "OTT" as const, currency: "KRW" as const },
-  { name: "Watcha", category: "OTT" as const, currency: "KRW" as const },
-  { name: "Coupang Play", category: "OTT" as const, currency: "KRW" as const },
-  { name: "네이버플러스 멤버십", category: "SHOPPING" as const, currency: "KRW" as const },
-  { name: "쿠팡 와우 멤버십", category: "SHOPPING" as const, currency: "KRW" as const },
-  { name: "밀리의서재", category: "NEWS" as const, currency: "KRW" as const },
-  { name: "Xbox Game Pass", category: "GAMING" as const, currency: "KRW" as const },
+  // OTT
+  { name: "Netflix", category: "OTT" as const, currency: "KRW" as const, amount: 17000, popular: true },
+  { name: "YouTube Premium", category: "OTT" as const, currency: "KRW" as const, amount: 14900, popular: true },
+  { name: "Disney+", category: "OTT" as const, currency: "KRW" as const, amount: 9900, popular: true },
+  { name: "TVING", category: "OTT" as const, currency: "KRW" as const, amount: 10900 },
+  { name: "Wavve", category: "OTT" as const, currency: "KRW" as const, amount: 10900 },
+  { name: "Watcha", category: "OTT" as const, currency: "KRW" as const, amount: 7900 },
+  { name: "Coupang Play", category: "OTT" as const, currency: "KRW" as const, amount: 7890 },
+  // 음악
+  { name: "Spotify", category: "MUSIC" as const, currency: "KRW" as const, amount: 10900, popular: true },
+  { name: "Apple Music", category: "MUSIC" as const, currency: "KRW" as const, amount: 10900 },
+  // 생산성
+  { name: "ChatGPT Plus", category: "PRODUCTIVITY" as const, currency: "USD" as const, amount: 20, popular: true },
+  { name: "Notion", category: "PRODUCTIVITY" as const, currency: "USD" as const, amount: 10 },
+  { name: "Claude Pro", category: "PRODUCTIVITY" as const, currency: "USD" as const, amount: 20 },
+  // 클라우드
+  { name: "iCloud+ 50GB", category: "CLOUD" as const, currency: "KRW" as const, amount: 1100 },
+  { name: "iCloud+ 200GB", category: "CLOUD" as const, currency: "KRW" as const, amount: 3900 },
+  { name: "Google One 100GB", category: "CLOUD" as const, currency: "KRW" as const, amount: 2400 },
+  // 쇼핑
+  { name: "쿠팡 와우 멤버십", category: "SHOPPING" as const, currency: "KRW" as const, amount: 7890, popular: true },
+  { name: "네이버플러스 멤버십", category: "SHOPPING" as const, currency: "KRW" as const, amount: 4900 },
+  // 기타
+  { name: "밀리의서재", category: "NEWS" as const, currency: "KRW" as const, amount: 9900 },
+  { name: "Xbox Game Pass", category: "GAMING" as const, currency: "KRW" as const, amount: 14800 },
 ];

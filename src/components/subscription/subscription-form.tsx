@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { Loader2, ChevronDown, ChevronUp, Sparkles } from "lucide-react";
 import type {
   Subscription,
   CreateSubscriptionInput,
@@ -43,11 +43,23 @@ export function SubscriptionForm({ subscription }: SubscriptionFormProps) {
   const [memo, setMemo] = useState(subscription?.memo || "");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showAllPresets, setShowAllPresets] = useState(false);
+
+  const popularServices = POPULAR_SERVICES.filter((s) => s.popular);
+  const otherServices = POPULAR_SERVICES.filter((s) => !s.popular);
 
   const handlePresetSelect = (preset: (typeof POPULAR_SERVICES)[0]) => {
     setServiceName(preset.name);
     setCategory(preset.category);
     setCurrency(preset.currency);
+    setAmount(preset.amount.toString());
+  };
+
+  const formatPrice = (amount: number, currency: string) => {
+    if (currency === "KRW") {
+      return `₩${amount.toLocaleString()}`;
+    }
+    return `$${amount}`;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -126,27 +138,94 @@ export function SubscriptionForm({ subscription }: SubscriptionFormProps) {
       )}
 
       {/* Quick Presets */}
-      <div>
-        <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-          빠른 선택
-        </label>
-        <div className="flex flex-wrap gap-2">
-          {POPULAR_SERVICES.map((preset) => (
-            <button
-              key={preset.name}
-              type="button"
-              onClick={() => handlePresetSelect(preset)}
-              className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
-                serviceName === preset.name
-                  ? "bg-emerald-50 border-emerald-300 text-emerald-700 dark:bg-emerald-900/20 dark:border-emerald-700 dark:text-emerald-400"
-                  : "border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600"
-              }`}
-            >
-              {preset.name}
-            </button>
-          ))}
+      {!isEditing && (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-amber-500" />
+            <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              빠른 추가
+            </label>
+          </div>
+
+          {/* 인기 서비스 */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            {popularServices.map((preset) => (
+              <button
+                key={preset.name}
+                type="button"
+                onClick={() => handlePresetSelect(preset)}
+                className={`p-3 text-left rounded-lg border transition-all ${
+                  serviceName === preset.name
+                    ? "bg-emerald-50 border-emerald-300 dark:bg-emerald-900/20 dark:border-emerald-600 ring-1 ring-emerald-300 dark:ring-emerald-600"
+                    : "border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600 hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
+                }`}
+              >
+                <div className="font-medium text-sm text-zinc-900 dark:text-zinc-100 truncate">
+                  {preset.name}
+                </div>
+                <div className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                  {formatPrice(preset.amount, preset.currency)}/월
+                </div>
+              </button>
+            ))}
+          </div>
+
+          {/* 더보기 토글 */}
+          <button
+            type="button"
+            onClick={() => setShowAllPresets(!showAllPresets)}
+            className="flex items-center gap-1 text-sm text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors"
+          >
+            {showAllPresets ? (
+              <>
+                <ChevronUp className="w-4 h-4" />
+                접기
+              </>
+            ) : (
+              <>
+                <ChevronDown className="w-4 h-4" />
+                더 많은 서비스 보기 ({otherServices.length}개)
+              </>
+            )}
+          </button>
+
+          {/* 기타 서비스 */}
+          {showAllPresets && (
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {otherServices.map((preset) => (
+                <button
+                  key={preset.name}
+                  type="button"
+                  onClick={() => handlePresetSelect(preset)}
+                  className={`p-3 text-left rounded-lg border transition-all ${
+                    serviceName === preset.name
+                      ? "bg-emerald-50 border-emerald-300 dark:bg-emerald-900/20 dark:border-emerald-600 ring-1 ring-emerald-300 dark:ring-emerald-600"
+                      : "border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600 hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
+                  }`}
+                >
+                  <div className="font-medium text-sm text-zinc-900 dark:text-zinc-100 truncate">
+                    {preset.name}
+                  </div>
+                  <div className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                    {formatPrice(preset.amount, preset.currency)}/월
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-zinc-200 dark:border-zinc-700" />
+            </div>
+            <div className="relative flex justify-center text-xs">
+              <span className="bg-white dark:bg-zinc-900 px-2 text-zinc-400">
+                또는 직접 입력
+              </span>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Service Name */}
       <div>
