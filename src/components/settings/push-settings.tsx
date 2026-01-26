@@ -232,6 +232,27 @@ export function PushSettings({ initialEnabled, vapidPublicKey }: PushSettingsPro
             : "활성화하면 결제일 알림을 모바일에서 받을 수 있습니다."}
         </p>
 
+        {isSubscribed && (
+          <button
+            onClick={async () => {
+              try {
+                const res = await fetch("/api/push/test", { method: "POST" });
+                const data = await res.json();
+                if (data.results?.some((r: { success: boolean }) => r.success)) {
+                  toast.success("테스트 알림을 발송했습니다.");
+                } else {
+                  toast.error("알림 발송에 실패했습니다.");
+                }
+              } catch {
+                toast.error("알림 발송에 실패했습니다.");
+              }
+            }}
+            className="w-full py-2 text-sm text-emerald-600 hover:text-emerald-700 font-medium"
+          >
+            테스트 알림 보내기
+          </button>
+        )}
+
         {!isSubscribed && permission !== "denied" && (
           <div className="pt-2 border-t border-zinc-200 dark:border-zinc-800">
             <p className="text-xs text-zinc-400">
