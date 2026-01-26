@@ -8,29 +8,20 @@ const DEFAULT_RATES: Record<Currency, number> = {
   EUR: 1450,
 };
 
-interface ExchangeRateResponse {
-  result: string;
-  base_code: string;
-  conversion_rates: Record<string, number>;
+interface FreeCurrencyApiResponse {
+  date: string;
+  usd: Record<string, number>;
 }
 
 /**
- * ExchangeRate-API에서 실시간 환율 조회
- * 무료 플랜: 1,500 요청/월
- * https://www.exchangerate-api.com/
+ * FreeCurrencyAPI에서 실시간 환율 조회
+ * API 키 불필요, 매시간 업데이트, 주말에도 작동
+ * https://github.com/fawazahmed0/currency-api
  */
 export async function fetchExchangeRates(): Promise<Record<Currency, number>> {
-  const apiKey = process.env.EXCHANGE_RATE_API_KEY;
-
-  // API 키가 없으면 기본 환율 반환
-  if (!apiKey) {
-    console.warn("EXCHANGE_RATE_API_KEY not set, using default rates");
-    return DEFAULT_RATES;
-  }
-
   try {
     const response = await fetch(
-      `https://v6.exchangerate-api.com/v6/${apiKey}/latest/KRW`,
+      "https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json",
       { next: { revalidate: 3600 } } // 1시간 캐싱
     );
 
@@ -38,20 +29,17 @@ export async function fetchExchangeRates(): Promise<Record<Currency, number>> {
       throw new Error(`API error: ${response.status}`);
     }
 
-    const data: ExchangeRateResponse = await response.json();
+    const data: FreeCurrencyApiResponse = await response.json();
+    const rates = data.usd;
 
-    if (data.result !== "success") {
-      throw new Error("API returned error");
-    }
-
-    // KRW 기준 환율로 변환 (1 외화 = X KRW)
-    const rates = data.conversion_rates;
+    // USD 기준 환율 (1 USD = X KRW)
+    const usdToKrw = rates.krw || DEFAULT_RATES.USD;
 
     return {
       KRW: 1,
-      USD: rates.USD ? Math.round(1 / rates.USD) : DEFAULT_RATES.USD,
-      JPY: rates.JPY ? Math.round((1 / rates.JPY) * 100) / 100 : DEFAULT_RATES.JPY,
-      EUR: rates.EUR ? Math.round(1 / rates.EUR) : DEFAULT_RATES.EUR,
+      USD: Math.round(usdToKrw),
+      JPY: rates.jpy ? Math.round((usdToKrw / rates.jpy) * 100) / 100 : DEFAULT_RATES.JPY,
+      EUR: rates.eur ? Math.round(usdToKrw / rates.eur) : DEFAULT_RATES.EUR,
     };
   } catch (error) {
     console.error("Failed to fetch exchange rates:", error);
@@ -60,12 +48,11 @@ export async function fetchExchangeRates(): Promise<Record<Currency, number>> {
 }
 
 /**
- * Open Exchange Rates API (대안)
- * 무료 플랜: 1,000 요청/월
+ * Frankfurter API (폴백용)
+ * ECB 기반, 주말 제외 매일 업데이트
  */
 export async function fetchExchangeRatesAlternative(): Promise<Record<Currency, number>> {
   try {
-    // 무료 API (frankfurter.app) - API 키 불필요
     const response = await fetch(
       "https://api.frankfurter.app/latest?from=KRW&to=USD,JPY,EUR",
       { next: { revalidate: 3600 } }
