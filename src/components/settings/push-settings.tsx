@@ -29,11 +29,20 @@ export function PushSettings({ initialEnabled, vapidPublicKey }: PushSettingsPro
 
   const checkSubscription = async () => {
     try {
+      // 먼저 등록된 서비스 워커가 있는지 확인
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      if (registrations.length === 0) {
+        // 서비스 워커가 없으면 구독도 없음
+        setIsSubscribed(false);
+        return;
+      }
+
       const registration = await navigator.serviceWorker.ready;
       const subscription = await registration.pushManager.getSubscription();
       setIsSubscribed(!!subscription);
     } catch (error) {
       console.error("Check subscription error:", error);
+      setIsSubscribed(false);
     }
   };
 
@@ -96,17 +105,29 @@ export function PushSettings({ initialEnabled, vapidPublicKey }: PushSettingsPro
     setIsLoading(true);
 
     try {
-      const registration = await navigator.serviceWorker.ready;
-      const subscription = await registration.pushManager.getSubscription();
+      // 먼저 등록된 서비스 워커가 있는지 확인
+      const registrations = await navigator.serviceWorker.getRegistrations();
 
-      if (subscription) {
-        await subscription.unsubscribe();
+      if (registrations.length > 0) {
+        const registration = await navigator.serviceWorker.ready;
+        const subscription = await registration.pushManager.getSubscription();
 
-        // 서버에서 구독 정보 삭제
+        if (subscription) {
+          await subscription.unsubscribe();
+
+          // 서버에서 구독 정보 삭제
+          await fetch("/api/push/subscribe", {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ endpoint: subscription.endpoint }),
+          });
+        }
+      } else {
+        // 서비스 워커가 없으면 서버에서만 삭제
         await fetch("/api/push/subscribe", {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ endpoint: subscription.endpoint }),
+          body: JSON.stringify({}),
         });
       }
 
